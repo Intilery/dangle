@@ -41,17 +41,24 @@ angular.module('dangle')
                 duration:    '@',
                 delay:       '@',
                 plot:        '@',
-                pointRadius: '@' 
+                pointRadius: '@',
+                marginLeft:  '=',
+                marginRight: '=',
+                marginBottom:'=',
+                marginTop:   '=',
+                xticks:      '=',
+                yticks:      '='
             },
 
             link: function(scope, element, attrs) {
 
                 var margin = {
-                    top: 20, 
-                    right: 20, 
-                    bottom: 30, 
-                    left: 80
+                    top: scope.marginTop || 20,
+                    right: scope.marginRight || 20,
+                    bottom: scope.marginBottom || 30,
+                    left: scope.marginLeft || 80
                 };
+
 
                 // default width/height - mainly to create initial aspect ratio
                 var width = scope.width || 1280;
@@ -82,6 +89,15 @@ angular.module('dangle')
                 var yAxis = d3.svg.axis()
                     .scale(y)
                     .orient('left');
+
+                //set the number of ticks if specified
+                if(scope.xticks) {
+                    xAxis.ticks(scope.xticks);
+                }
+
+                if(scope.yticks) {
+                    yAxis.ticks(scope.yticks);
+                }
 
                 // create line generator 
                 var line = d3.svg.line()
