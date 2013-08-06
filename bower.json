@@ -1,0 +1,12 @@
+{
+  "name": "dangle",
+  "version": "1.0.0",
+  "main": "src/dangle.module.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
