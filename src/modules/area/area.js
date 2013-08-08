@@ -68,6 +68,7 @@ angular.module('dangle')
                 var interpolate = attrs.interpolate || 'false';
 
                 var label = attrs.label || 'Frequency';
+                var rotateLabel = attrs.rotateLabel || 'true';
                 var klass = attrs.class || '';
 
                 // add margins (make room for x,y labels)
@@ -136,16 +137,24 @@ angular.module('dangle')
                     .attr('transform', 'translate(0,' + height + ')')
                     .call(xAxis);
 
-                // insert the x axis (no data yet)
-                svg.append('g')
+                var axis = svg.append('g')
                     .attr('class', 'area y axis ' + klass)
                     .call(yAxis)
-                        .append('text')
-                            .attr('transform', 'rotate(-90)')
-                            .attr('y', 6)
-                            .attr('dy', '.71em')
-                            .style('text-anchor', 'end')
-                            .text(label);
+                    .append('text')
+                    .attr('dy', '.71em')
+                    .text(label);
+                // insert the y axis (no data yet)
+                if(rotateLabel == 'true') {
+                    axis
+                        .attr('transform', 'rotate(-90)')
+                        .attr('y', 6)
+                        .style('text-anchor', 'end')
+                } else {
+                    axis
+                        .attr('y', -10)
+                        .attr('dy', '.71em')
+                }
+
 
                 // generate the line. Data is empty at link time
                 svg.append('path')
