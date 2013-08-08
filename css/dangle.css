@@ -54,3 +54,16 @@
     stroke: none;
     font-size: 12px;
 }
+
+.area-tooltip {
+    position: absolute;
+    text-align: left;
+    width: 150px;
+    height: 40px;
+    padding: 2px;
+    font: 12px sans-serif;
+    background: white;
+    border: 2px #959595 solid;
+    border-radius: 2px;
+    pointer-events: none;
+}

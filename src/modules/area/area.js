@@ -24,7 +24,7 @@
  */
 
 angular.module('dangle')
-    .directive('fsArea', [function() {
+    .directive('fsArea', ['$filter', function($filter) {
         'use strict';
 
         return {
@@ -47,10 +47,13 @@ angular.module('dangle')
                 marginBottom:'=',
                 marginTop:   '=',
                 xticks:      '=',
-                yticks:      '='
+                yticks:      '=',
+                tooltips:    '@'
             },
 
             link: function(scope, element, attrs) {
+
+                var dateFilter = $filter('date');
 
                 var margin = {
                     top: scope.marginTop || 20,
@@ -70,6 +73,7 @@ angular.module('dangle')
                 var label = attrs.label || 'Frequency';
                 var rotateLabel = attrs.rotateLabel || 'true';
                 var klass = attrs.class || '';
+                var tooltips = attrs.tooltips || 'false';
 
                 // add margins (make room for x,y labels)
                 width = width - margin.left - margin.right;
@@ -82,7 +86,7 @@ angular.module('dangle')
                 var y = d3.scale.linear()
                     .range([height, 0]);
 
-                // create x,y axis 
+                // create x,y axis
                 var xAxis = d3.svg.axis()
                     .scale(x)
                     .orient('bottom');
@@ -100,7 +104,7 @@ angular.module('dangle')
                     yAxis.ticks(scope.yticks);
                 }
 
-                // create line generator 
+                // create line generator
                 var line = d3.svg.line()
                     .x(function(d) { return x(d.time); })
                     .y(function(d) { return y(d.count); });
@@ -111,7 +115,7 @@ angular.module('dangle')
                     .y0(height)
                     .y1(function(d) { return y(d.count); });
 
-                // enable interpolation if specified 
+                // enable interpolation if specified
                 if (attrs.interpolate == 'true') {
                     line.interpolate('cardinal');
                     area.interpolate('cardinal');
@@ -162,6 +166,10 @@ angular.module('dangle')
                     .attr('class', 'area line ' + klass)
                     .attr("d", line);
 
+                var div = d3.select("body").append("div")
+                    .attr("class", "area-tooltip")
+                    .style("opacity", 0);
+
 
                 // main observer fn called when scope is updated. Data and scope vars are now bound
                 scope.$watch('bind', function(data) {
@@ -183,7 +191,7 @@ angular.module('dangle')
                         x.domain(d3.extent(data, function(d) { return d.time; }));
                         y.domain([0, d3.max(data, function(d) { return d.count; })]);
 
-                        // create the transition 
+                        // create the transition
                         var t = svg.transition().duration(duration);
 
                         // feed the current data to our area/line generators
@@ -197,13 +205,13 @@ angular.module('dangle')
                             // using Math.random as (optional) key fn ensures old
                             // data values are flushed and all new values inserted
                             var points = svg.selectAll('circle')
-                                .data(data.filter(function(d) { 
-                                    return d.count; 
-                                }), function(d) { 
-                                    return Math.random(); 
+                                .data(data.filter(function(d) {
+                                    return d.count;
+                                }), function(d) {
+                                    return Math.random();
                                 });
 
-                            // d3 enter fn binds each new value to a circle 
+                            // d3 enter fn binds each new value to a circle
                             points.enter()
                                 .append('circle')
                                     .attr('class', 'area line points ' + klass)
@@ -219,10 +227,28 @@ angular.module('dangle')
                                         .attr("r", pointRadius);
 
                             // wire up any events (registers filter callback)
-                            points.on('mousedown', function(d) { 
+                            points.on('mousedown', function(d) {
                                 scope.$apply(function() {
                                     (scope.onClick || angular.noop)(field, d.time);
                                 });
+                            }).on("mouseover", function(d) {
+                                    if(tooltips === 'true') {
+                                        div.transition()
+                                        .duration(200)
+                                        .style("opacity", .9);
+                                        div .html(
+                                            "<strong>" + dateFilter(new Date(d.time), "EEEE, MMM d, yyyy") + "</strong>" +
+                                                    "<br>" + label + ":" + "<strong>" + d.count +"</strong>"
+                                            )
+                                        .style("left", (d3.event.pageX) + "px")
+                                        .style("top", (d3.event.pageY - 28) + "px");
+                                    }
+                            }).on("mouseout", function(d) {
+                                    if(tooltips === 'true') {
+                                        div.transition()
+                                            .duration(100)
+                                            .style("opacity", .0);
+                                    }
                             });
 
                             // d3 exit/remove flushes old values (removes old circles)

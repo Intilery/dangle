@@ -1,7 +1,7 @@
 {
     "name": "dangle",
     "description": "A set of AngularJS directives that provide common visualizations for elasticsearch based on D3",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "homepage": "http://www.fullscale.co/dangle",
     "keywords": ["angularjs", "d3", "charts", "graphs", "elasticsearch"],
     "repository": {
